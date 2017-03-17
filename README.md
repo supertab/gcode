@@ -1,2 +1,0 @@
-- Imaga process code
-- Graduate Project
