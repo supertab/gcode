@@ -1,0 +1,2 @@
+- `_split_test.py`: 数组元素分裂实验程序
+- `lbg.py`: lbg矢量量化算法，原理[LBG_VQ_Design](http://www.data-compression.com/vq.shtml)
