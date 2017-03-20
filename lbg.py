@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.cluster.vq as vq
-import matplotlib.pyplot as plt
 
 def lbg_vq(data, k, split_factor=1e-3): 
     centorid = data.sum(axis=0)/ data.shape[0]
@@ -10,6 +9,7 @@ def lbg_vq(data, k, split_factor=1e-3):
     return centorid
 
 if __name__ == '__main__':
+    import matplotlib.pyplot as plt
     ndot = 1000 
     # data = np.random.randn(ndot*2).reshape((ndot,2))
     data = 100*np.random.rand(ndot*2).reshape((ndot,2))
