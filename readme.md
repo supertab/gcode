@@ -1,4 +1,0 @@
-- `_split_test.py`: 数组元素分裂实验程序
-- `lbg.py`: lbg矢量量化算法，原理[LBG_VQ_Design](http://www.data-compression.com/vq.shtml)
-- `im2col.py`: read image from src directory, split them to 8*8 blocks, then save them to des directory
-- `train.py`: use lbg_vq to generate vq dictionary, save them to vqdict directroy
