@@ -9,8 +9,6 @@ def my_kmeans(D, k=3):
     # 初始集合中心
     # m_k = dot.init_centroid(k) 
     m_k = dot.init_c(D, k)
-    dot.dot_plot( np.array(D), dstyle='o')
-    dot.dot_plot(m_k, 'rx')
 
     # m_k = (np.abs(50*np.random.randn(3,2))).tolist() 
     vector_len=len(D[len(D)//2]) # 得到向量的长度
@@ -55,15 +53,15 @@ def my_kmeans(D, k=3):
 
         if if_converge: 
             break
-    print(iter_num)
-    return m_k 
+    # print(iter_num)
+    label, dist = vq.vq(D, m_k)
+    return np.array(m_k), label
 
-D= dot.data(n=100)
-k = 3
-m_kz = my_kmeans(D, k)
-m_kscipy, idx = vq.kmeans(D, k)
-
-
-
-dot.dot_plot( np.array(m_kz))
-dot.dot_plot(np.array(m_kscipy), dstyle='^')
+if __name__ == '__main__':
+    D= dot.data(n=100)
+    k = 3
+    m_kz, label = my_kmeans(D, k)
+    m_kscipy, idx = vq.kmeans(D, k)
+    dot.dot_plot( np.array(D), dstyle='o')
+    dot.dot_plot( np.array(m_kz))
+    dot.dot_plot(np.array(m_kscipy), dstyle='^')
