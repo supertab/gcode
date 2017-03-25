@@ -13,7 +13,7 @@
 
 - **kmeans程序**
   - 自己实现的 kmeans 与 scipy 库函数进行对比实验
-![result](http://upload-images.jianshu.io/upload_images/3022282-91d5f14af293cd28.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![result](https://im1.shutterfly.com/ng/services/mediarender/THISLIFE/021009631031/media/122848088768/medium/1490418305413/enhance)
 
      - `x`: initial dot
      - `red dot`: my_kmeans result
@@ -25,4 +25,4 @@
   - vq_decode: 解码函数，从文件或者内存中传入(centroid, label, im.shape)三元组，返回图像数组
   - save_data：将三元组以文件的形式保存，后缀为vq
 
-![实验结果](http://upload-images.jianshu.io/upload_images/3022282-c4b0b41f39e515a0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![实验结果](https://im1.shutterfly.com/ng/services/mediarender/THISLIFE/021009631031/media/122848069090/medium/1490418187/enhance)
