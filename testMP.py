@@ -78,27 +78,21 @@ def Decode(coef, im_size, block_size, codebook):
     im = col2im(im_size, blocks, block_size)
     return im
 
-if __name__ == '__main__':
-    im = mh.imread('lena200.jpg')
-    # 转化为灰度图
-    if len(im.shape)==3:
-        im= mh.colors.rgb2gray(im) # float64
-    # use PIL to convert gray
-    # im = im.convert(mode='L') # int8
-    bb = 8 # 8x8方形窗口[bb,bb]
-    codebook = GenDCT(bb)
-    print('Image Encoding ...')
-    coeff = SparseCodeing(im, bb, codebook)
-    sparse_coef = coo_matrix(coeff) # compress sparse matrix by scipy.sparse's function
-    print('Image reconstruct ...')
-    recovery_im = Decode(coeff, im.shape, bb, codebook)
+im = mh.imread('iron128.jpg')
+# 转化为灰度图
+im= mh.colors.rgb2gray(im) # float64
+# use PIL to convert gray
+# im = im.convert(mode='L') # int8
+bb = 8 # 8x8方形窗口[bb,bb]
+codebook = GenDCT(bb)
+coeff = SparseCodeing(im, bb, codebook)
+sparse_coef = coo_matrix(coeff) # compress sparse matrix by scipy.sparse's function
+recovery_im = Decode(coeff, im.shape, bb, codebook)
 
-    # plot
-    plt.gray()
-    plt.subplot(121)
-    plt.title('initial image')
-    plt.imshow(im)
-    plt.subplot(122)
-    plt.title('reconstruct image')
-    plt.imshow(recovery_im)
+# plot
+plt.gray()
+plt.subplot(121)
+plt.imshow(im)
+plt.subplot(122)
+plt.imshow(recovery_im)
 plt.show()
