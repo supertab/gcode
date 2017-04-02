@@ -37,7 +37,7 @@ def gen_train_set(src, des, imgsize, blksize, imgtype='.bmp'):
             print(bkname,'split down ...')
             fname = des+bkname+suffix
             tmp = np.array(block_set)
-            # kmeans2 only support float64
+            # kmeans2 only support float32,64
             tmp = tmp.astype(np.float32)
             with open(fname, 'wb') as f:
                 pickle.dump(tmp.reshape((tmp.shape[0], tmp.shape[1]*tmp.shape[2])), f)

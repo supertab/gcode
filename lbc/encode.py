@@ -39,7 +39,7 @@ def _bit2hex(bitstream, fout):
         f.write(hexcode)
     return hexcode
 
-def encode(img_name, vqds, kset, imgsize, blksize=8):
+def encode(img_name, vqds, kset, imgsize, blksize=8, show=True):
     # read image
     img = mh.imread(img_name)
     if img.shape[0] != imgsize:
@@ -61,8 +61,9 @@ def encode(img_name, vqds, kset, imgsize, blksize=8):
     # label list to bit stream
     bitstream = _int2bitstr(label, kset)
     hexcode = _bit2hex(bitstream, img_name)
-    print('%s is encodeing to: %s\nHEXCODE: %s'%(img_name,\
-            img_name[:-3]+'hex', hexcode))
+    if show:
+        print('%s is encodeing to: %s\nHEXCODE: %s'%(img_name,\
+                img_name[:-3]+'hex', hexcode))
     return hexcode
 
 if __name__ == '__main__':
