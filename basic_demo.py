@@ -13,14 +13,19 @@ chs = int(chs)
 blksize = 8
 imgsize = 512
 k = 5
-img_name = 'testIMG/0151.bmp'
+img_name = 'testIMG/0493.bmp'
 sampleDIR = 'sample/'
 bksetDIR = 'blocks/'
 
 if chs==0:
     # training
-    kset = k
-    vqds  = lbc.train.vq_train(sampleDIR, bksetDIR, kset, imgsize, blksize, gen_set=False, sav=True)
+    # if vqd is existed, show warning message
+    conti = 'Y'
+    if 'vqdict.pkl' in os.listdir():
+        conti = input('the vqdict.pkl is existed, continue?[Y]/N: ')
+    if conti in ['Y', 'y']:
+        kset = k
+        vqds  = lbc.train.vq_train(sampleDIR, bksetDIR, kset, imgsize, blksize, gen_set=True, sav=True)
 
 elif chs==1:
     # encoding
@@ -47,4 +52,4 @@ elif chs==2:
     decode_end = time.perf_counter()
     consume_t = decode_end - decode_begin
     print('image decoding consume time: %.3fms'%(consume_t*1000))
-    # lbc.decode.img_show_save(img, hexfile, show=True, sav=True)
+    lbc.decode.img_show_save(img, hexfile, show=True, sav=True)

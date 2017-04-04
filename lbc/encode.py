@@ -41,12 +41,12 @@ def _bit2hex(bitstream, fout):
 
 def encode(img_name, vqds, kset, imgsize, blksize=8, show=True):
     # read image
-    img = mh.imread(img_name)
+    img = mh.imread(img_name, as_grey=True)
     if img.shape[0] != imgsize:
         print('illegal image size ...')
         return None
-    if len(img.shape) == 3:
-        img = mh.colors.rgb2gray(img)
+    # if len(img.shape) == 3:
+        # img = mh.colors.rgb2gray(img)
     # split
     cols = _im2col(img, blksize)
     cols = cols.astype(np.float64)

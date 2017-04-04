@@ -14,8 +14,10 @@ def col2im(cols, img_size, blksize):
 
 # parse hex stream
 def hex2bit(fin):
-    with open(fin) as f:
-        hexstr = f.read()
+    if '.' in fin:
+        with open(fin) as f:
+            hexstr = f.read()
+    else: hexstr=fin
     bitstream = ''
     for each_hex in hexstr:
         # hex to binary
@@ -47,7 +49,7 @@ def decode(bitstream, vqds, kset, imgshape, blksize=8):
     print('reconstruct image down...')
     return img
 
-def img_show_save(img, fin, show=True, sav=True):
+def img_show_save(img, fin, show=False, sav=False):
     import matplotlib.pyplot as plt
     import PIL.Image as Image
     # show and save
@@ -57,7 +59,7 @@ def img_show_save(img, fin, show=True, sav=True):
         plt.show()
     if sav:
         im_out = Image.fromarray(img.astype(np.uint8))
-        img_name = fin[:-4]+'_rc.bmp'
+        img_name = fin[:-4]+'_lbc.bmp'
         im_out.save(img_name)
         print('save image: %s'%img_name)
 

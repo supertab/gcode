@@ -1,13 +1,20 @@
 import os
 from PIL import Image
 
-def type_in():
-    print('直接按回车表示按默认参数...')
-    imgType = input('输入图片的格式，按回车默认保存为 jpg: ')
+def type_in(img_list):
+    # imgType = input('输入图片的格式，按回车默认保存: ')
+    imgType = input('enter image type [keep]:')
     if len(imgType)==0:
-        imgType='jpg'
+        imgType=os.path.splitext(img_list[0])[1]
+    if '.' not in imgType:
+        imgType = '.'+imgType
+    return imgType
+
+def get_img_list(desPath):
+    print('直接按回车表示按默认参数...')
     while True:
-        srcPath = input('输入源图片所在路径，默认为当前目录： ')
+        # srcPath = input('输入源图片所在路径，默认为当前目录： ')
+        srcPath = input('enter the path of image [./]:')
         if len(srcPath)==0:
             srcPath = './'
             break
@@ -15,65 +22,92 @@ def type_in():
             os.chdir(srcPath) # change to srcPath
             break
         except:
-            print('该目录不存在...')
+            # print('该目录不存在...')
+            print('fail to get in this dir...')
             continue
-    return imgType, srcPath
-
-def get_img_list(desPath):
+    # get image list, then make the dir for convert
     srcDir = os.listdir() 
     img_list = [ i for i in srcDir if i[-3:] in ['bmp', 'jpg', 'png']]
     if len(img_list)==0:
-        print('没有发现图片...')
-        input()
-        return None
+        raise Exception('no image in the dir...')
     if desPath[:-1] not in srcDir:
         os.mkdir(desPath) # mkdir in srcDir
-    return img_list
+    return img_list, srcPath
 
 def rgb2gray(desPath='gray_img/'):
-    imgType, srcPath = type_in()
-    img_list = get_img_list(desPath)
-    if img_list == None:
-        return
-        
+    img_list, srcPath  = get_img_list(desPath)
+    imgType= type_in(img_list)
     for each_im in img_list:
         im = Image.open(each_im)
-        if im.mode == 'RGB':
+        if im.mode in ['RGB', 'RGBA']:
             im = im.convert('L')
-        img_name = desPath+each_im[:-3]+imgType
+        img_name = desPath+os.path.splitext(each_im)[0]+imgType
         im.save(img_name)
         print('convert: %s to %s'%(each_im, img_name))
-    print('图片保存目录为%s'%(srcPath+'\\'+desPath[:-1]))
+    # print('图片保存目录为%s'%(srcPath+'\\'+desPath[:-1]))
+    print('image saved in: %s'%(srcPath+'\\'+desPath[:-1]))
     input()    
 
 def crop(desPath='crop/'):
-    imgType, srcPath = type_in()
-    img_list = get_img_list(desPath)
-    if img_list == None:
-        return
+    img_list, srcPath = get_img_list(desPath)
+    imgType = type_in(img_list)
     img_size = Image.open(img_list[0]).size
     while True:
-        area = input('图片尺寸为：%s\n\
-               输入 左上点 和 右下点 的坐标(格式 0 0 128 128）: '%str(img_size))
+        area = input('size of input image：%s\nenter left, upper, right, lower [0 0 %d %d]: '%(str(img_size), img_size[0], img_size[1]))
+        if len(area)==0:
+            area = '0 0 %d %d'%(img_size[0], img_size[1])
         area = area.split()
         (left, upper, right, lower) = tuple([int(i) for i in area])
-        if left < right < img_size[0]:
-            if upper < lower < img_size[1]:
+        if left < right <= img_size[0]:
+            if upper < lower <= img_size[1]:
                 break
     for each_im in img_list:
         im = Image.open(each_im)
         im = im.crop((left, upper, right, lower))
-        img_name = desPath+each_im[:-3]+imgType
+        img_name = desPath+os.path.splitext(each_im)[0]+imgType
         im.save(img_name)
         print('convert: %s to %s'%(each_im, img_name))
-    print('图片保存目录为%s'%(srcPath+'\\'+desPath[:-1]))
     input()   
 
+def resize(desPath='resize/'):
+    img_list, srcPath = get_img_list(desPath)
+    imgType = type_in(img_list)
+    _size = Image.open(img_list[0]).size
+    im_info = 'the image size is %s'%str(_size)
+    scal =input('%s, enter the scale(ex. 0.5): '%im_info)
+    if len(scal)==0: scal = 1.0
+    else: scal = float(scal)
+    imgsize = (int(_size[0]*scal), int(_size[1]*scal))
+    for each_im in img_list:
+        im = Image.open(each_im)
+        if scal!=1.0:
+            im = im.resize(imgsize)
+        img_name =desPath+os.path.splitext(each_im)[0]+imgType
+        im.save(img_name)
+        print('convert: %s to %s'%(each_im, img_name))
+
+    print('image saved in: %s'%(srcPath+'\\'+desPath[:-1]))
+    # print('图片保存目录为%s'%(srcPath+'\\'+desPath[:-1]))
+    print('new image is %s'%str(imgsize))
+
+
+
 if __name__ == '__main__':
-    func = [rgb2gray, crop]
-    item ='''【0】RGB转灰度图
-【1】裁剪图像
-输入：'''
-    chs = input(item)
-    func[int(chs)]()
+    func = [rgb2gray, crop, resize]
+    while True:
+        title='''
+-------------------------
+   IMAGE Batch Tool v1
+-------------------------
+* [1] rgb2gray
+* [2] crop
+* [3] resize 
+* [q] quit
+-------------------------
+输入:'''
+        chs = input(title)
+        if chs == 'q': break
+        if chs.isdigit() and int(chs) in range(len(func)):
+                func[int(chs)-1]()
+                break
 

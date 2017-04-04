@@ -13,13 +13,14 @@ def lbg_vq(data, k, split_factor=1e-3):
         centorid, label = vq.kmeans2(data, centorid, minit='matrix')
     return centorid
 
-
-def gen_train_set(src, des, imgsize, blksize, imgtype='.bmp'):
+def gen_train_set(src, des, imgsize, blksize): #, imgtype='.bmp'):
     image_list = os.listdir(src)
     # make directory
     if des[:-1] not in os.listdir():
         os.mkdir(des)
-    image_list = [img for img in image_list if img.find(imgtype)+1 ]
+    # fliter picture
+    support_formats = ['.BMP','.JPG']
+    image_list = [img for img in image_list if os.path.splitext(img)[1].upper() in support_formats ]
     lim = imgsize - blksize + 1
     block_set = []
     # naming of each block_set
@@ -61,13 +62,13 @@ def vq_train(src, des, kset, imgsize, blksize=8, gen_set=True, sav=True):
     if sav:
         with open('vqdict.pkl', 'wb') as f:
             pickle.dump(vqd, f)
-            print('save VQ dictionary down ...')
+            print('save VQ dictionary down at current director...')
     return vqd
 
 
 if __name__ == '__main__':
     dirBkset = 'testBlocks/'
-    dirSample = 'testSample/'
+    dirSample = r'./'
     imgsize = 512 
     blksize = 8
     kset = 2
