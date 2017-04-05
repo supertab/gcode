@@ -6,15 +6,6 @@ import numpy as np
 import scipy.cluster.vq as vq
 import mahotas as mh
 
-
-# readall in memory: assume the memory is enough
-def _read_all(src, imglist):
-    imgs = []
-    for img in imglist:
-        imgs.append(mh.imread(src+img, as_grey=True))
-    imgs = np.array(imgs)
-    return imgs.astype(np.uint8)
-
 def lbg_vq(data, k, split_factor=1e-3): 
     centorid = data.sum(axis=0)/ data.shape[0]
     for i in range(0,k):
@@ -22,15 +13,14 @@ def lbg_vq(data, k, split_factor=1e-3):
         centorid, label = vq.kmeans2(data, centorid, minit='matrix')
     return centorid
 
-
-def gen_train_set(src, des, imgsize, blksize, imgtype='.bmp', readall=False):
+def gen_train_set(src, des, imgsize, blksize): #, imgtype='.bmp'):
     image_list = os.listdir(src)
     # make directory
     if des[:-1] not in os.listdir():
         os.mkdir(des)
-    image_list = [img for img in image_list if img.find(imgtype)+1 ]
-    if readall:
-        image_list = _read_all(src, image_list)
+    # fliter picture
+    support_formats = ['.BMP','.JPG']
+    image_list = [img for img in image_list if os.path.splitext(img)[1].upper() in support_formats ]
     lim = imgsize - blksize + 1
     block_set = []
     # naming of each block_set
@@ -43,22 +33,21 @@ def gen_train_set(src, des, imgsize, blksize, imgtype='.bmp', readall=False):
             n_iter +=1
             bkname = count[:-len(str(n_iter))] + str(n_iter)
             for each_img in image_list:
-                if not readall:
-                    each_img= mh.imread(src+each_img, as_grey=True)
-                block_set.append(each_img[px:px+blksize, py:py+blksize])
+                img = mh.imread(src+each_img, as_grey=True)
+                block_set.append(img[px:px+blksize, py:py+blksize])
             print(bkname,'split down ...')
             fname = des+bkname+suffix
             tmp = np.array(block_set)
-            # kmeans2 only support float64
+            # kmeans2 only support float32,64
             tmp = tmp.astype(np.float32)
             with open(fname, 'wb') as f:
                 pickle.dump(tmp.reshape((tmp.shape[0], tmp.shape[1]*tmp.shape[2])), f)
             block_set.clear()
 
-def vq_train(src, des, kset, imgsize, blksize=8, gen_set=True, sav=True, allin=False):
+def vq_train(src, des, kset, imgsize, blksize=8, gen_set=True, sav=True):
     # split image to blocks
     if gen_set:
-        gen_train_set(src, des, imgsize, blksize, readall=allin)
+        gen_train_set(src, des, imgsize, blksize)
     # tree kmeans to generate vq dictionary
     bkset_list= np.array(os.listdir(des))
     bkset_list.sort()
@@ -73,14 +62,14 @@ def vq_train(src, des, kset, imgsize, blksize=8, gen_set=True, sav=True, allin=F
     if sav:
         with open('vqdict.pkl', 'wb') as f:
             pickle.dump(vqd, f)
-            print('save VQ dictionary down ...')
+            print('save VQ dictionary down at current director...')
     return vqd
 
 
 if __name__ == '__main__':
-    dirBkset = 'blocks/'
-    dirSample = 'sample/'
-    imgsize = 128 
+    dirBkset = 'testBlocks/'
+    dirSample = r'./'
+    imgsize = 512 
     blksize = 8
     kset = 2
-    vqdl = vq_train(dirSample, dirBkset, kset, imgsize, blksize, gen_set=True, sav=True, allin=True)
+    vqdl = vq_train(dirSample, dirBkset, kset, imgsize, blksize, gen_set=True, sav=True)
