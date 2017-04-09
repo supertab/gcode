@@ -2,6 +2,7 @@ import numpy as np
 import pickle
 import scipy.cluster.vq as vq
 import mahotas as mh
+import bits
 
 def _im2col(img, blk_size):
     cols = []
@@ -35,11 +36,11 @@ def _bit2hex(bitstream, fout):
         hextmp = hex(int(bitstream[i:i+4], 2))
         hexcode += hextmp[2]
     # save to txt
-    with open(fout[:-3]+'hex', 'w') as f:
+    with open(fout[:-4]+'_hex.lbc', 'w') as f:
         f.write(hexcode)
     return hexcode
 
-def encode(img_name, vqds, kset, imgsize, blksize=8, show=True):
+def encode(img_name, vqds, kset, imgsize, blksize=8, show=True, sav2hex=False):
     # read image
     img = mh.imread(img_name, as_grey=True)
     if img.shape[0] != imgsize:
@@ -60,11 +61,15 @@ def encode(img_name, vqds, kset, imgsize, blksize=8, show=True):
     label = np.array(label)
     # label list to bit stream
     bitstream = _int2bitstr(label, kset)
-    hexcode = _bit2hex(bitstream, img_name)
-    if show:
+    if sav2hex:
+        hexcode = _bit2hex(bitstream, img_name)
+    # write bitstream to file
+    else:
+        bits.write(bitstream, img_name)
+    if sav2hex and show:
         print('%s is encodeing to: %s\nHEXCODE: %s'%(img_name,\
                 img_name[:-3]+'hex', hexcode))
-    return hexcode
+    return 0 
 
 if __name__ == '__main__':
     img_name = '0220.bmp'

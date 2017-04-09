@@ -1,3 +1,1 @@
-import train
-import encode
-import decode
+import train, encode, decode

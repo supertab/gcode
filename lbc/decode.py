@@ -61,7 +61,7 @@ def img_show_save(img, fin, show=False, sav=False):
         im_out = Image.fromarray(img.astype(np.uint8))
         img_name = fin[:-4]+'_lbc.bmp'
         im_out.save(img_name)
-        print('save image: %s'%img_name)
+        #print('save image: %s'%img_name)
 
 if __name__== '__main__':
     vqd_name = 'vqdict.pkl'
