@@ -7,4 +7,4 @@
 - 训练得到的 VQ 字典保存在当前目录，名为 vqdict.pkl
 
 # 实现结果
-![](http://upload-images.jianshu.io/upload_images/3022282-d20fc4c72734e35d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![](http://a1.qpic.cn/psb?/V13pdGkE4KC4Bj/6R*kPcF5JuVeq7kPGhRZHcjp0vk8JvqQr7m2KvF74EU!/b/dGgBAAAAAAAA&bo=QwObA0MDmwMDCSw!&rf=viewer_4)
