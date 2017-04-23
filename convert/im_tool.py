@@ -107,7 +107,7 @@ if __name__ == '__main__':
 输入:'''
         chs = input(title)
         if chs == 'q': break
-        if chs.isdigit() and int(chs) in range(len(func)):
+        if chs.isdigit() and int(chs) in range(1, len(func)+1):
                 func[int(chs)-1]()
                 break
 
