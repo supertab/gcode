@@ -12,7 +12,7 @@ chs = int(chs)
 
 blksize = 8
 imgsize = 1024
-k = 7
+k = 5
 img_name = 'testIMG/1904.bmp'
 sampleDIR = 'sample/'
 bksetDIR = 'blocks/'

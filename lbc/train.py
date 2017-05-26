@@ -14,9 +14,8 @@ def _read_all(src, imglist):
     for img in imglist:
         imgs.append(mh.imread(src+img, as_grey=True).astype(np.uint8))
         counter +=1
-        if counter==100:
+        if counter%100==0:
             print('read in %d image...'%counter)
-            counter=0
     imgs = np.array(imgs)
     return imgs.astype(np.uint8)
 

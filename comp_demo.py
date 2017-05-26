@@ -1,3 +1,4 @@
+#!/home/zooo/stdpyenv/bin/python
 import sys, pickle, time, os
 sys.path.append('./lbc')
 import lbc, gen_compress, select_file, bits
@@ -9,7 +10,7 @@ psnr = lambda im0, im1: 10*np.log10( 255/np.sqrt(((im1-im0)**2).mean()))
 
 blksize = 8
 imgsize = 1024
-k = 7
+k = 5
 img_format = '.bmp'
 testDIR = 'testIMG/'
 sampleDIR = 'sample/'
@@ -50,6 +51,9 @@ img_j2k, j2ksize = gen_compress.bmp2j2k(img_name, lbcsize)
 img_j2k = np.array(img_j2k)
 psnr_j2k = psnr(img_bmp, img_j2k)
 
+print('psnr: lbc %.3f, jpg %.3f, j2k %.3f'%(psnr_lbc, psnr_jpg, psnr_j2k))
+
+'''
 #plot
 plt.gray()
 fig = plt.figure(figsize=(13,10))
@@ -75,3 +79,4 @@ fig.subplots_adjust(wspace=0.1, hspace=0.3)
 imgf = os.path.splitext(img_name)[0].replace('/', '_')+'.png'
 fig.savefig(imgf)
 print('save test result: %s'%imgf)
+'''
