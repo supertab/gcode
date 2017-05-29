@@ -1,10 +1,11 @@
 #!/home/zooo/stdpyenv/bin/python
 import sys, pickle, time, os
 sys.path.append('./lbc')
-import lbc, gen_compress, select_file, bits
-import numpy as np
-from PIL import Image
-import matplotlib.pyplot as plt
+import select_file
+#import lbc, gen_compress, select_file, bits
+#import numpy as np
+#from PIL import Image
+#import matplotlib.pyplot as plt
 
 psnr = lambda im0, im1: 10*np.log10( 255/np.sqrt(((im1-im0)**2).mean()))
 
@@ -16,7 +17,7 @@ testDIR = 'testIMG/'
 sampleDIR = 'sample/'
 bksetDIR = 'blocks/'
 try:
-    img_name = testDIR+select_file.select_file(img_format, testDIR)
+    img_name = testDIR+select_file.select_file(img_format, destdir=testDIR)
 except:
     print('illega choose...')
 
