@@ -36,20 +36,19 @@ def gen_train_set(src, des, imgsize, blksize, readall):
     image_list = [img for img in image_list if os.path.splitext(img)[1].upper() in support_formats ]
     if readall:
         image_list = _read_all(src, image_list)
-    lim = imgsize - blksize + 1
+    limx = imgsize[0] - blksize + 1
+    limy = imgsize[1] - blksize + 1
     block_set = []
     # naming of each block_set
-    nimg = (imgsize// blksize)**2
+    nimg = imgsize[0]*imgsize[1] // blksize**2
     count = '0'*len(str(nimg))
     n_iter = 0
     suffix = '.bks' # set of block which at same position
-    for px in range(0, lim, blksize):
-        for py in range(0, lim, blksize):
+    for px in range(0, limx, blksize):
+        for py in range(0, limy, blksize):
             n_iter +=1
             bkname = count[:-len(str(n_iter))] + str(n_iter)
             for each_img in image_list:
-                if not readall:
-                    each_img= mh.imread(src+each_img, as_grey=True)
                 block_set.append(each_img[px:px+blksize, py:py+blksize])
             print(bkname,'split down ...')
             fname = des+bkname+suffix
@@ -84,8 +83,8 @@ def vq_train(src, des, kset, imgsize, blksize=8, gen_set=True, sav=True, allin=F
 
 if __name__ == '__main__':
     dirBkset = 'testBlocks/'
-    dirSample = r'./'
-    imgsize = 512 
+    dirSample = 'sample/'
+    imgsize = (512, 2048)
     blksize = 8
-    kset = 2
-    vqdl = vq_train(dirSample, dirBkset, kset, imgsize, blksize, gen_set=True, sav=True)
+    kset = 5
+    vqdl = vq_train(dirSample, dirBkset, kset, imgsize, blksize, gen_set=True, sav=True, allin=True)

@@ -2,7 +2,8 @@ import ctypes
 # str2bits
 def write(bs_in, fname):
     dll = ctypes.cdll.LoadLibrary
-    bitstream = dll('lbc/bitstream.so')
+    # bitstream = dll('lbc/bitstream.so')
+    bitstream = dll('./bitstream.so')
     bs_in = bs_in.encode('utf-8')
     fname = fname[:-4]+'.lbc'
     fname = fname.encode('utf-8')

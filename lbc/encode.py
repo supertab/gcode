@@ -6,9 +6,10 @@ import bits
 
 def _im2col(img, blk_size):
     cols = []
-    lim = img.shape[0] - blk_size +1
-    for px in range(0, lim, blk_size):
-        for py in range(0, lim, blk_size):
+    limx = img.shape[0] - blk_size +1
+    limy = img.shape[1] - blk_size +1
+    for px in range(0, limx, blk_size):
+        for py in range(0, limy, blk_size):
             col = img[px:px+blk_size, py:py+blk_size]
             cols.append( col.reshape(blk_size*blk_size))
     return np.array(cols)
@@ -43,7 +44,7 @@ def _bit2hex(bitstream, fout):
 def encode(img_name, vqds, kset, imgsize, blksize=8, show=True, sav2hex=False):
     # read image
     img = mh.imread(img_name, as_grey=True)
-    if img.shape[0] != imgsize:
+    if img.shape != imgsize:
         print('illegal image size ...')
         return None
     # if len(img.shape) == 3:
@@ -72,12 +73,12 @@ def encode(img_name, vqds, kset, imgsize, blksize=8, show=True, sav2hex=False):
     return 0 
 
 if __name__ == '__main__':
-    img_name = '0220.bmp'
+    img_name = '0342_90.bmp'
     vqd_name = 'vqdict.pkl'
     # loadf vq dictionary set
     with open(vqd_name, 'rb') as f:
         vqds = pickle.load(f)
-    kset = [2]*len(vqds)
+    kset = [7]*len(vqds)
     blksize = 8
-    imgsize = 512
+    imgsize = (512, 2048)
     hexcode = encode(img_name, vqds, kset, imgsize, blksize)

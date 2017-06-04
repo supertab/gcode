@@ -11,8 +11,8 @@ chs = input(item)
 chs = int(chs)
 
 blksize = 8
-imgsize = 1024
-k = 5
+imgsize = (512, 2048)
+k = 7
 img_name = 'testIMG/1904.bmp'
 sampleDIR = 'sample/'
 bksetDIR = 'blocks/'

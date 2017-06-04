@@ -1,12 +1,14 @@
 import numpy as np
 import pickle
+import bits
 
 def col2im(cols, img_size, blksize):
-    img = np.zeros((img_size, img_size))
-    lim = img.shape[0] - blksize +1
+    img = np.zeros(img_size)
+    limx = img.shape[0] - blksize +1
+    limy = img.shape[1] - blksize +1
     ncol = 0
-    for px in range(0, lim, blksize):
-        for py in range(0, lim, blksize):
+    for px in range(0, limx, blksize):
+        for py in range(0, limy, blksize):
             col = cols[ncol].reshape((blksize, blksize))
             img[px:px+blksize, py:py+blksize] = col
             ncol += 1
@@ -68,10 +70,11 @@ if __name__== '__main__':
     # load vq dict
     with open(vqd_name,'rb') as f:
         vqds = pickle.load(f)
-    kset = [2]*len(vqds) 
-    imgshape = 512
+    kset = [5]*len(vqds) 
+    imgshape = (512, 2048)
     blksize = 8
-    fin = '0220.hex'
-    bitstream = hex2bit(fin)
+    fin = '0342_90.bmp'
+    # bitstream = hex2bit(fin)
+    bitstream=bits.read(fin)
     img = decode(bitstream, vqds, kset, imgshape, blksize)
-    img_show_save(img, fin, 1, 0)
+    img_show_save(img, fin, 0, 1)
