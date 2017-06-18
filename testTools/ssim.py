@@ -44,8 +44,6 @@ def mssim(imgName1, imgName2, cvmode='valid'):
     return m_ssim
 
 def main():
-
-
     img1 = sys.argv[1]
     img2 = sys.argv[2]
     print('MSSIM: %.4f'%(mssim(img1, img2)))
