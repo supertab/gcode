@@ -4,7 +4,7 @@ import mp_dicts, im_trans, mp2, quota
 import matplotlib.pyplot as plt
 from PIL import Image
 import pickle, os
-'''运行一次50分钟'''
+'''运行一次50分钟, 占用大量内存40G'''
 
 print('generating dictionarys...')
 Gabor  = mp_dicts.GenGabor(64)

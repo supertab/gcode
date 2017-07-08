@@ -1,5 +1,9 @@
 import time
-from algo import lbc 
+import lbc 
+'''
+在当前目录中保存聚类字典：.pkl 文件
+图像压缩文件和解压缩文件在图像路径目录下的 output 子目录中
+'''
 
 item = '''[0] training samples
 [1] image encode
@@ -12,14 +16,14 @@ while True:
     if chs=='q': break
     chs = int(chs)
     blksize=8
-    k=8
-    # srcDIR = 'D:\\gcode\\testIMG\\stdIMG_512\\crop\\'
-    srcDIR = 'G:\\图像库\\北海固溶二号线图像\\二号线成卷图像\\003652bmp'
-    vqdpath = '.\\vqdict_8.pkl'
-    # imgpath = 'D:\\gcode\\testIMG\\stdIMG_512\\crop\\camera_512.bmp'
-    imgpath = 'G:\\图像库\\北海固溶二号线图像\\二号线成卷图像\\tmp\\flaw01.bmp'
-    # lbcpath = 'D:\\gcode\\testIMG\\stdIMG_512\\crop\\output\\camera_512.lbc'
-    lbcpath = 'G:\\图像库\\北海固溶二号线图像\\二号线成卷图像\\tmp\\output\\flaw01.lbc'
+    k=5
+    srcDIR = 'E:\\WZ\\gcode\\testIMG\\stdIMG\\256'
+    # srcDIR = 'G:\\图像库\\北海固溶二号线图像\\二号线成卷图像\\003652bmp'
+    vqdpath = '.\\vqdict_%d.pkl'%k
+    imgpath = '..\\testIMG\\stdIMG\\256\\lenna.bmp'
+    # imgpath = 'G:\\图像库\\北海固溶二号线图像\\二号线成卷图像\\tmp\\flaw01.bmp'
+    lbcpath = '..\\testIMG\\stdIMG\\256\\output\\lenna.lbc'
+    # lbcpath = 'G:\\图像库\\北海固溶二号线图像\\二号线成卷图像\\tmp\\output\\flaw01.lbc'
 
     if chs==0:
         # training
