@@ -1,7 +1,7 @@
 import numpy as np
 from im_trans import col2im
 
-def encode(D, X, maxErr, maxIter=10, pflag=False):
+def encode(D, X, maxErr=1000, maxIter=16, pflag=False):
     '''
     encoding with mp_err.
     params

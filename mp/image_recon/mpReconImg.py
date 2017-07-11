@@ -43,10 +43,10 @@ for n in range(10, 60, 5):
     print('decomposing image with DCT...', n)
     coefs1 = mp2.encode(DCT, imgcols, maxErr=10, maxIter=n)
     print('decomposing image with Gabor...', n)
-    coefs2 = mp2.encode(Gabor, imgcols, maxErr=10, maxIter=n)
+    # coefs2 = mp2.encode(Gabor, imgcols, maxErr=10, maxIter=n)
     print('construct image...', n)
     img1 = mp2.decode(coefs1, imgsize, 8, DCT)
-    img2 = mp2.decode(coefs2, imgsize, 8, Gabor)
+    # img2 = mp2.decode(coefs2, imgsize, 8, Gabor)
     dct_data.read(img1)
     gabor_data.read(img2)
 

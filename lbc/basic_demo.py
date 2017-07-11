@@ -16,7 +16,7 @@ while True:
     if chs=='q': break
     chs = int(chs)
     blksize=8
-    k=5
+    k=3
     srcDIR = 'E:\\WZ\\gcode\\testIMG\\stdIMG\\256'
     # srcDIR = 'G:\\图像库\\北海固溶二号线图像\\二号线成卷图像\\003652bmp'
     vqdpath = '.\\vqdict_%d.pkl'%k
@@ -33,7 +33,7 @@ while True:
         # encoding
         # encode_begin = time.perf_counter()
         encode_begin = time.perf_counter()
-        lbc.encode(imgpath, vqdpath, blksize, k)
+        lbc.encode(imgpath, vqdpath, blksize, k, mode='rmse')
         encode_end = time.perf_counter()
         consume_t = encode_end - encode_begin
         print('image encoding consume time: %.3fms'%(consume_t*1000))
