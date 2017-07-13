@@ -1,7 +1,7 @@
 import sys; sys.path.append('../scripts')
 import mp_dicts, mp2, quota
 import numpy as np
-import os, pickle, time
+import os, pickle, time, glob, sys
 import os.path as pth
 import scipy.cluster.vq as vq
 from PIL import Image
@@ -129,7 +129,7 @@ def col2im(cols, imgsize, blksize):
     imgf[imgf>255]=255
     return imgf.astype(np.uint8)
 
-def matchv(vqds, cols, mp, mode):
+def matchv(vqds, DCT, cols, mp, mode):
     # set match function threhold
     if mode=='ssim':
         matchfunc = quota.ssim
@@ -140,10 +140,8 @@ def matchv(vqds, cols, mp, mode):
     elif mode == 'rmse':
         matchfunc=quota.rmse
         threhold = 5
-    DCT = mp_dicts.GenDCT(8)
     # match
     vq_idxs, mp_sets, insert_pos =[], [], []
-
     for col_pos, vcpair in enumerate(zip(vqds, cols)):
         vqd, col = vcpair
         vq_idx, dist = matchfunc(*vcpair)
@@ -155,14 +153,14 @@ def matchv(vqds, cols, mp, mode):
                 mp_set = list(zip(nonz_pos, nonz_val)) # mp_set: [(idx1, coeff1), (idx2, coeff2), ...] 
                 insert_pos.append(col_pos)
                 mp_sets.append(mp_set)
-                print('f', dist)
+                # print('f', dist)
             else:
                 vq_idxs.append(vq_idx)
         else:
             vq_idxs.append(vq_idx)
     return vq_idxs, mp_sets, insert_pos 
 
-def train(srcDIR, k, blksize, vqs_name='vqdict.pkl'):
+def train(srcDIR, kset, blksize, pkg_name='vqdict.pkl'):
     '''
     # 训练过程:
     # 分块:
@@ -183,18 +181,20 @@ def train(srcDIR, k, blksize, vqs_name='vqdict.pkl'):
     cnt =0
     for py in range(0, lim_h, blksize):
         for px in range(0, lim_w, blksize):
-            cnt+=1
             blkset = img_split(imglist, (py,px), blksize)
-            vq = lbg_vq(blkset, k)
+            vq = lbg_vq(blkset, kset[cnt])
             vqs.append(vq)
+            cnt+=1
             print('training block %d down...'%cnt)
     vqs = np.asarray(vqs).astype(np.uint8)
+    # 将 kset，vqs，dct打包
+    pkg = [kset, vqs, mp_dicts.GenDCT(8)]
     # 保存结果
-    with open(vqs_name, 'wb') as f:
-        pickle.dump(vqs, f)
+    with open(pkg_name, 'wb') as f:
+        pickle.dump(pkg, f)
     print('save VQ dictionary down...')
 
-def encode(imgpath, vqdpath, blksize, kset, mp=True, mode='rmse'):
+def encode(imgpath, vqdpath, blksize, mp=True, mode='rmse'):
     '''
      编码过程:
      量化图片
@@ -206,11 +206,11 @@ def encode(imgpath, vqdpath, blksize, kset, mp=True, mode='rmse'):
         |--保存成文件
     '''
     with open(vqdpath, 'rb') as f:
-        vqds = pickle.load(f)
-    kset = [kset]*vqds.shape[0]
+        vqds_pkg = pickle.load(f)
+    kset, vqds, dct = vqds_pkg
     img = np.array(Image.open(imgpath))
     cols = im2col(img, blksize)
-    vq_idxs, mp_sets, insert_pos = matchv(vqds, cols, mp, mode)
+    vq_idxs, mp_sets, insert_pos = matchv(vqds, dct, cols, mp, mode)
     # bitstream = _int2bitstr(idxs, kset) 
     # hexcode = _bit2hex(bitstream)
     pack = [vq_idxs, mp_sets, insert_pos, img.shape] # 存储图片的尺寸信息
@@ -239,13 +239,14 @@ def recon_vec(D, mp_sets):
         vectors.append(vec)
     return vectors
 
-def decode(lbcpath, vqdpath, blksize, kset):
+def decode(lbcpath, vqdpath, blksize):
     with open(lbcpath, 'rb') as f:
         vq_idxs, mp_sets, insert_pos, imgsize = pickle.load(f)
     with open(vqdpath, 'rb') as f:
-        vqds = pickle.load(f)
+        vqds_pkg= pickle.load(f)
+        kset, vqds, dct = vqds_pkg
+        kset = np.delete(kset, insert_pos)
         vqds = np.delete(vqds, insert_pos, axis=0) # 删除无匹配的vq字典
-    kset = [kset]*vqds.shape[0]
     # bitstream = _hex2bit(hexcode)
     # idxs = _bitstr2int(bitstream, kset)
     cols =[]
@@ -253,7 +254,7 @@ def decode(lbcpath, vqdpath, blksize, kset):
     for vqd, idx in zip(vqds, vq_idxs):
         cols.append(vqd[idx])
     # insert reconstruct vectors back
-    dct = mp_dicts.GenDCT(8)
+    # dct = mp_dicts.GenDCT(8)
     vecs = recon_vec(dct, mp_sets)
     for v_pos, vec in zip(insert_pos, vecs):
         cols.insert(v_pos, vec)
@@ -263,19 +264,76 @@ def decode(lbcpath, vqdpath, blksize, kset):
     img2.save(imgname)
     return img 
 
+def calcuLBC(codebook, lbc_img):
+    '''
+    params
+        codebook(np.array): kset(W*H维向量)+vqds(所有vq小块的字典集合)+dct(256x64离散余弦字典)
+                知道vqds通过计算每个vqd的长度就能得到kset
+        lbc_img(np.array):  [vq_idxs, mp_sets, insert_pos, img.shape]
+    return
+        字节数
+    '''
+    # 判断类型，如果传入文件名就打开文件
+    if type(codebook) != type(lbc_img):
+        print('type err...')
+        return
+    if isinstance(codebook,str):
+        with open(lbc_img, 'rb') as f:
+            lbc_img = pickle.load(f)
+        with open(codebook, 'rb') as f:
+            codebook = pickle.load(f)
+    vq_idxs, mp_sets, insert_pos = lbc_img[:3]
+    kset, vqds, dct = codebook
+    kset, vqds = np.delete(kset, insert_pos), np.delete(vqds, insert_pos, axis=0)
+    vqIdx, atomInfo, insertPos, atomNum = 0, 0, 0, 0
+    # 计算vq_idx比特串长度r
+    for k in kset:
+        vqIdx += 2**k
+    # 计算insertPos,atomNum,atomInfo
+    N1 = len(insert_pos)
+    insertPos = 18*N1
+    atomNum = 4*N1
+    atomInfo= 24*sum([len(i) for i in mp_sets])
+    size = vqIdx+insertPos+atomInfo+atomNum
+    return np.ceil(size/8)
+
+def gen_kset(k, srcDir, blksize):
+    imglist = srcDir+os.sep+'*.bmp'
+    if len(glob.glob(imglist)):
+        imgpath = glob.glob(imglist)[0]
+    else:
+        return
+    img = np.array(Image.open(imgpath).convert('L'))
+    nblk = (img.shape[0]/blksize)*(img.shape[1]/blksize)
+    kset = [k]*int(nblk)
+    return kset
+
 def main():
+    usage='''Usage: %run lbc.py v1 v2
+    ------------------------
+    v1: set K value, scope: 2-4
+    v2: if use MP, scope: 0,1
+    '''
+    if len(sys.argv) != 3:
+        print(usage)
+        return
     blksize=8
-    k=3
-    srcDIR = 'E:\\WZ\\gcode\\testIMG\\stdIMG\\256'
+    k =int(sys.argv[1])
+    srcDIR = '..\\testIMG\\stdIMG\\256'
     # srcDIR = 'G:\\图像库\\北海固溶二号线图像\\二号线成卷图像\\003652bmp'
     vqdpath = '.\\vqdict_%d.pkl'%k
     imgpath = '..\\testIMG\\stdIMG\\256\\lenna.bmp'
     # imgpath = 'G:\\图像库\\北海固溶二号线图像\\二号线成卷图像\\tmp\\flaw01.bmp'
     lbcpath = '..\\testIMG\\stdIMG\\256\\output\\lenna.lbc'
     # lbcpath = 'G:\\图像库\\北海固溶二号线图像\\二号线成卷图像\\tmp\\output\\flaw01.lbc'
-    encode(imgpath,vqdpath, blksize, k, mp=True)
-    time.sleep(2)
-    decode(lbcpath, vqdpath, blksize, k)
+    kset = gen_kset(k, srcDIR, blksize)
+    # train(srcDIR, kset, blksize)
+    # time.sleep(2)
+    encode(imgpath,vqdpath, blksize, mp=int(sys.argv[2]))
+    time.sleep(1)
+    print(calcuLBC(vqdpath, lbcpath))
+
+    decode(lbcpath, vqdpath, blksize)
 
 if __name__ == '__main__':
     main()
