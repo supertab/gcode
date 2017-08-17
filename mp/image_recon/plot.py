@@ -47,8 +47,8 @@ def plot_line():
     '''
     '''
     x = [i for i in range(10, 60, 5)]
-    y1 = img_gabor.psnr
-    y2 = img_dct.psnr
+    y1 = img_dct.psnr
+    y2 = img_gabor.psnr
     f2 = plt.figure(2)
     dct_line, = plt.plot(x,y1, '-o', label='DCT')
     gabor_line, = plt.plot(x,y2, '-^', label='Gabor')
@@ -56,5 +56,5 @@ def plot_line():
     plt.xlabel('原子个数'), plt.ylabel('PSNR')
     plt.show()
 
-showimg()
+# showimg()
 plot_line()

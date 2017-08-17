@@ -1,5 +1,33 @@
 import numpy as np
 
+def float2int(data, scope):
+    '''
+    Function
+    --------
+    map float data to int from uniform the scope
+
+    Parameters
+    ----------
+    data: float, np.array
+    scope: tuple, the scope of in
+
+    Return
+    ------
+    out: int data
+    '''
+    dshape = data.shape
+    data = data.flatten()
+    dmin, dmax = data.min(), data.max()
+    imin, imax = scope
+    # data2 = np.array([(x-dmin)*(imax-imin)/(dmax-dmin)+imin for x in data])
+    # data2 = list(map(lambda x: (x-dmin)*(imax-imin)/(dmax-dmin)+imin, data))
+    data2 = (data-dmin)*(imax-imin)/(dmax-dmin)+imin
+    print(max(data2), min(data2))  
+    # data2 = np.fromiter(data2, dtype=np.uint8)
+    data2 = np.asarray(data2, dtype=np.uint8).reshape(dshape)
+    print(data2.max(), data2.min())
+    return data2
+
 def im2col(img, blockshape, stepsize=1):
     w, h = img.shape
     wlim = w - blockshape[0]+1
