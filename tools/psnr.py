@@ -12,6 +12,6 @@ import sys
 im0 = np.array(Image.open(sys.argv[1]))
 im1 = np.array(Image.open(sys.argv[2]))
 
-psnr = lambda im0, im1: 20*np.log10( 255/np.sqrt( ((im0-im1)**2).mean()))
+psnr = lambda im0, im1: 20 * np.log10(255 / np.sqrt(((im0 - im1)**2).mean()))
 
 print('PSNR:', psnr(im0, im1))
