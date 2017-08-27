@@ -15,13 +15,6 @@ import scipy.cluster.vq as vq
 from PIL import Image
 import matplotlib.pyplot as plt
 
-sql = '''create table if not exists test(
-    name char(20),
-    k int,
-    ssim float,
-    filesize int,
-    time float,
-    primary key (name, k));'''
-todb.create_table(sql)
-name, k, ssim, size, time = 'lena', 5, 0.85, 128, 111.22
-todb.insert(name, k, ssim, size, time, tbname='test')
+a = time.time()
+time.sleep(2)
+print(time.time()-a)

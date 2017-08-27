@@ -2,7 +2,8 @@ import sys
 sys.path.append('../scripts')
 import mp_dicts
 import mp2
-import todb
+import sqlite3
+# import todb
 import quota
 import numpy as np
 import os
@@ -161,14 +162,14 @@ def matchv(vqds, DCT, cols, mp, mode):
         threhold = 0
     elif mode == 'rmse':
         matchfunc = quota.rmse
-        threhold = 5
+        threhold = 6
     # match
     vq_idxs, mp_sets, insert_pos = [], [], []
     for col_pos, vcpair in enumerate(zip(vqds, cols)):
         vqd, col = vcpair
         vq_idx, dist = matchfunc(*vcpair)
-        if mp is True:
-            if dist < threhold:
+        if mp == 1:
+            if dist > threhold:
                 mp_vec = mp2.encode(DCT, col).flatten()
                 nonz_pos = mp_vec.nonzero()[0]  # 得到非零元素的位置
                 nonz_val = mp_vec[nonz_pos]    # 得到非零元素的值
@@ -333,8 +334,8 @@ def calcuLBC(codebook, lbc_img):
     atomNum = 4 * N1
     atomInfo = 24 * sum([len(i) for i in mp_sets])
     size = vqIdx + insertPos + atomInfo + atomNum
-    print('N0: %s, N1: %s' % (N0, N1))
-    return np.ceil(size / 8)
+    # print('N0: %s, N1: %s' % (N0, N1))
+    return np.ceil(size / 8), N0, N1
 
 
 def gen_kset(k, srcDir, blksize):
@@ -361,12 +362,12 @@ def main():
         return
     blksize = 8
     k = int(sys.argv[1])
-    srcDIR = '..\\testIMG\\stdIMG\\256'
+    srcDIR = '..\\testIMG\\stdIMG\\512'
     # srcDIR = 'E:\\WZ\\金属样本\\西南铝\\sams\\right'
     vqdpath = '.\\vqdict_%d.pkl' % k
-    imgpath = '..\\testIMG\\stdIMG\\256\\lenna.bmp'
+    imgpath = '..\\testIMG\\stdIMG\\512\\lenna.bmp'
     # imgpath = 'E:\\WZ\\金属样本\\西南铝\\sams\\test_right\\0051.bmp'
-    lbcpath = '..\\testIMG\\stdIMG\\256\\output\\lenna.lbc'
+    lbcpath = '..\\testIMG\\stdIMG\\512\\output\\lenna.lbc'
     # lbcpath = 'E:\\WZ\\金属样本\\西南铝\\sams\\test_right\\output\\0051.lbc'
     kset = gen_kset(k, srcDIR, blksize)
     func = 'train' if len(sys.argv) < 4 else sys.argv[3]
@@ -375,15 +376,38 @@ def main():
         # time.sleep(3)
         os.rename("vqdict.pkl", 'vqdict_%d.pkl' % k)
     elif func == 'encode':
-        img_lbc, lbcsize = encode(
+        stime = time.time()
+        img_lbc, calres = encode(
             imgpath, vqdpath, blksize, mp=int(sys.argv[2]), mode='rmse')
-        print(lbcsize)
-    elif func == 'decode':
+        etime = time.time()
+        time_consume = etime - stime  # 以秒为单位
+        print('time consum:', time_consume)
+        lbcsize, N0, N1 = calres
+        print('N0: %s, N1: %s' % (N0, N1))
+        print('lbcsize:', lbcsize)
+        time.sleep(2)
         decode(lbcpath, vqdpath, blksize)
         # 计算ssim
         img0 = np.array(Image.open(imgpath).convert('L'))
-        img1 = np.array(Image.open(lbcpath.replace('.lbc', '_lbc.bmp')).convert('L'))
-        print(quota.mssim(img0, img1))
+        img1 = np.array(Image.open(lbcpath.replace(
+            '.lbc', '_lbc.bmp')).convert('L'))
+        mssim = quota.mssim(img0, img1)
+        print('ssim:', mssim)
+        # name, k, ssim, filesize, time, n0, n1 插入数据库
+        con = sqlite3.connect('test_result.db')
+        cur = con.cursor()
+        tbname = 'cbc_mp' if sys.argv[2] == '1' else 'cbc'
+        # insert
+        # insert_sql = '''insert into %s (name, k, ssim, filesize, n0, n1)
+        # values (?, ?, ?, ?, ?, ?);''' % tbname
+        # update
+        update_sql = '''update %s set time=? where name=\'lena512\' and k=?''' % tbname
+        try:
+            # cur.execute(insert_sql, ('lena512', k, mssim, lbcsize, N0, N1))
+            cur.execute(update_sql, (time_consume, k))
+            con.commit()
+        except:
+            con.close()
     else:
         print('err...')
         return
