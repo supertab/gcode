@@ -46,7 +46,8 @@ def bmp2jpg(pic, des_size, decomp=True):
 def bmp2j2k(pic, des_size, decomp=True):
     if 'output' not in os.listdir():
         os.mkdir('output')
-    size_in = path.getsize(pic)
+    imsize = Image.open(pic).size
+    size_in = imsize[0] * imsize[1]
     r = size_in // des_size
     im_bmp = Image.open(pic)
     imgpath, imgname = path.split(pic)

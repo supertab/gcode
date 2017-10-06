@@ -15,6 +15,9 @@ import scipy.cluster.vq as vq
 from PIL import Image
 import matplotlib.pyplot as plt
 
-a = time.time()
-time.sleep(2)
-print(time.time()-a)
+im = Image.open('..\\testIMG\\stdIMG\\256\\lenna.bmp')
+ima = np.array(im)
+ima = ima.T
+imb = Image.fromarray(ima.T)
+imc = imb.rotate(-90)
+imc.save('test.bmp')

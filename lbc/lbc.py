@@ -162,7 +162,7 @@ def matchv(vqds, DCT, cols, mp, mode):
         threhold = 0
     elif mode == 'rmse':
         matchfunc = quota.rmse
-        threhold = 6
+        threhold = 10
     # match
     vq_idxs, mp_sets, insert_pos = [], [], []
     for col_pos, vcpair in enumerate(zip(vqds, cols)):
@@ -338,8 +338,8 @@ def calcuLBC(codebook, lbc_img):
     return np.ceil(size / 8), N0, N1
 
 
-def gen_kset(k, srcDir, blksize):
-    imglist = srcDir + os.sep + '*.bmp'
+def gen_kset(k, srcDir, blksize, fmat='bmp'):
+    imglist = srcDir + os.sep + '*.%s'%fmat
     if len(glob.glob(imglist)):
         imgpath = glob.glob(imglist)[0]
     else:
@@ -362,14 +362,16 @@ def main():
         return
     blksize = 8
     k = int(sys.argv[1])
-    srcDIR = '..\\testIMG\\stdIMG\\512'
-    # srcDIR = 'E:\\WZ\\金属样本\\西南铝\\sams\\right'
+    # srcDIR = '..\\testIMG\\stdIMG\\512'
+    srcDIR = 'E:\\A_IronSample\\铝板1024x1024\\right\\train'
     vqdpath = '.\\vqdict_%d.pkl' % k
-    imgpath = '..\\testIMG\\stdIMG\\512\\lenna.bmp'
-    # imgpath = 'E:\\WZ\\金属样本\\西南铝\\sams\\test_right\\0051.bmp'
-    lbcpath = '..\\testIMG\\stdIMG\\512\\output\\lenna.lbc'
-    # lbcpath = 'E:\\WZ\\金属样本\\西南铝\\sams\\test_right\\output\\0051.lbc'
-    kset = gen_kset(k, srcDIR, blksize)
+    # imgpath = '..\\testIMG\\stdIMG\\512\\lenna.bmp'
+    # imgpath = 'C:\\Users\\supertab\\Desktop\\金属样本\\hot_iron_test\\0129.jpg'
+    imgpath = 'E:\\A_IronSample\\西南铝_印痕_1\\normal\\EastAlum\\train\\1002.jpg'
+    # lbcpath = '..\\testIMG\\stdIMG\\512\\output\\lenna.lbc'
+    # lbcpath = 'C:\\Users\\supertab\\Desktop\\金属样本\\hot_iron_test\\output\\0129.lbc'
+    lbcpath = 'E:\\A_IronSample\\西南铝_印痕_1\\normal\\EastAlum\\train\\output\\1002.lbc'
+    kset = gen_kset(k, srcDIR, blksize, 'bmp')
     func = 'train' if len(sys.argv) < 4 else sys.argv[3]
     if func == 'train':
         train(srcDIR, kset, blksize)
@@ -394,20 +396,20 @@ def main():
         mssim = quota.mssim(img0, img1)
         print('ssim:', mssim)
         # name, k, ssim, filesize, time, n0, n1 插入数据库
-        con = sqlite3.connect('test_result.db')
-        cur = con.cursor()
-        tbname = 'cbc_mp' if sys.argv[2] == '1' else 'cbc'
+        # con = sqlite3.connect('test_result.db')
+        # cur = con.cursor()
+        # tbname = 'cbc_mp' if sys.argv[2] == '1' else 'cbc'
         # insert
         # insert_sql = '''insert into %s (name, k, ssim, filesize, n0, n1)
         # values (?, ?, ?, ?, ?, ?);''' % tbname
         # update
-        update_sql = '''update %s set time=? where name=\'lena512\' and k=?''' % tbname
-        try:
+        # update_sql = '''update %s set time=? where name=\'lena512\' and k=?''' % tbname
+        # try:
             # cur.execute(insert_sql, ('lena512', k, mssim, lbcsize, N0, N1))
-            cur.execute(update_sql, (time_consume, k))
-            con.commit()
-        except:
-            con.close()
+            # cur.execute(update_sql, (time_consume, k))
+            # con.commit()
+        # except:
+            # con.close()
     else:
         print('err...')
         return

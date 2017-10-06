@@ -6,20 +6,20 @@ import lbc
 from PIL import Image
 import numpy as np
 
-for k in range(3,8):
-    vqdpath = '.\\vqdict_%d.pkl'%k
-    imgpath = 'E:\\WZ\\金属样本\\西南铝\\sams\\test_right\\0035.bmp'
-    lbcpath = 'E:\\WZ\\金属样本\\西南铝\\sams\\test_right\\output\\0035_%s.lbc'%k
-    lbcsize = lbc.calcuLBC(vqdpath, lbcpath)
-    print(k)
-    bmpsize = 1024*1024
-    print('compress rate: %.3f'%(bmpsize/lbcsize))
-    j2k, j2ksize = gen_compress.bmp2j2k(imgpath, lbcsize)
-    jpg, jpgsize = gen_compress.bmp2jpg(imgpath, lbcsize)
-    lbcimg  = np.array(Image.open(lbcpath.replace('.','_')+'.bmp'))
-    bmp = np.array(Image.open(imgpath))
-    print('ssim j2k:', quota.mssim(bmp, np.array(j2k)), j2ksize)
-    print('ssim lbc:', quota.mssim(bmp, lbcimg), lbcsize)
+k = 5
+vqdpath = '.\\vqdict_%d.pkl'%k
+imgpath = 'E:\\A_IronSample\\西南铝_印痕_1\\normal\\EastAlum\\train\\output\\1002.bmp'
+lbcpath = 'E:\\A_IronSample\\西南铝_印痕_1\\normal\\EastAlum\\train\\output\\1002.lbc'
+lbcsize = lbc.calcuLBC(vqdpath, lbcpath)[0]
+print(k)
+bmpsize = 1024*1024
+print('compress rate: %.3f'%(bmpsize/lbcsize))
+j2k, j2ksize = gen_compress.bmp2j2k(imgpath, lbcsize)
+jpg, jpgsize = gen_compress.bmp2jpg(imgpath, lbcsize)
+lbcimg  = np.array(Image.open(lbcpath.replace('.','_')+'.bmp'))
+bmp = np.array(Image.open(imgpath))
+print('ssim j2k:', quota.mssim(bmp, np.array(j2k)), j2ksize)
+print('ssim lbc:', quota.mssim(bmp, lbcimg), lbcsize)
 
 
 '''
