@@ -3,7 +3,7 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from sklearn.linear_model import orthogonal_mp_gram
 
-def ompcode2(D, X, maxIter=16, maxErr=1000, pflag=False):
+def ompcode(D, X, maxIter=16, maxErr=1000, pflag=False):
     '''
     encoding with mp_err.
     params
@@ -54,7 +54,7 @@ def ompcode2(D, X, maxIter=16, maxErr=1000, pflag=False):
         print( np.histogram(count))
     return A
 
-def ompcode(D, X, T):
+def ompcode2(D, X, T):
     gram = np.dot(D.T, D);
     cov = np.dot(D.T, X.T);
     return orthogonal_mp_gram(gram, cov, T, None);
@@ -69,15 +69,15 @@ def ksvd(Y, K, T):
     maxErr = 0.1;
     
     (P, N) = Y.shape;
-    D = np.mat(np.random.rand(P, K));
-    Yt = Y.T;
+    D = np.random.rand(P, K);
+    # Yt = Y.T;
     # 归一化，使得 Di 的 L2-norm 为 1
     for i in range(K): 
         D[:,i] /= np.linalg.norm(D[:,i])
     J = 0;
     while ( J < maxIter):
         # 使用 OMP 计算出当前 D 对应的稀疏表达        
-        X = ompcode(D,Yt,T);
+        X = ompcode(D,Y,T);
         for i in range(0, K):
             # 用到的样本的列表
             usedXi = np.nonzero(X[i,:])[0];
@@ -142,7 +142,7 @@ if __name__ == '__main__':
     # reconstruct
     m = img0.mean(axis=0)
     Yt = img0-m
-    X = ompcode(D, Yt, 3)
+    X = ompcode(D, Yt.T, 10)
     Y = np.dot(D, X).T
     Y += m
     img1 = col2im(Y, imgshape, 8)
